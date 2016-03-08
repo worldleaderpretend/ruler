@@ -77,14 +77,21 @@ namespace Ruler
 			ResourceManager resources = new ResourceManager(typeof(MainForm));
 			this.Icon = ((Icon)(resources.GetObject("$this.Icon")));
 
-			this.SetUpMenu();
-
-			this.Text = "Ruler";
+            this.SetUpMenu();
+            
+            this.Text = "Ruler";
 			this.BackColor = Color.White;
 
 			rulerInfo.CopyInto(this);
 
-			this.FormBorderStyle = FormBorderStyle.None;
+            MenuItem[] opacityMenuItem = _menu.MenuItems.Find("Opacity", false)[0].MenuItems.Find(Opacity*100 + "%", false);
+            
+            if (opacityMenuItem.Length > 0)
+            {
+                OpacityMenuHandler(opacityMenuItem[0], new EventArgs());
+            }
+            			
+            this.FormBorderStyle = FormBorderStyle.None;
 
 			this.ContextMenu = _menu;
 			this.Font = new Font("Tahoma", 10);
@@ -118,9 +125,10 @@ namespace Ruler
 			for (int i = 10; i <= 100; i += 10)
 			{
 				MenuItem subMenu = new MenuItem(i + "%");
+                subMenu.Name = (i + "%");
 				subMenu.Click += new EventHandler(OpacityMenuHandler);
 				opacityMenuItem.MenuItems.Add(subMenu);
-			}
+            }
 		}
 
 		private void SetWidthHeightHandler(object sender, EventArgs e)
@@ -168,6 +176,7 @@ namespace Ruler
 		private MenuItem AddMenuItem(string text, Shortcut shortcut, EventHandler handler)
 		{
 			MenuItem mi = new MenuItem(text);
+            mi.Name = text;
 			mi.Click += new EventHandler(handler);
 			mi.Shortcut = shortcut;
 			_menu.MenuItems.Add(mi);
@@ -506,8 +515,14 @@ namespace Ruler
 
 		private void OpacityMenuHandler(object sender, EventArgs e)
 		{
-			MenuItem mi = (MenuItem)sender;
+            foreach (MenuItem item in _menu.MenuItems.Find("Opacity", false)[0].MenuItems)
+            {
+                item.Checked = false;
+            }
+
+            MenuItem mi = (MenuItem)sender;
 			Opacity = double.Parse(mi.Text.Replace("%", "")) / 100;
+            mi.Checked = true;
 		}
 
 		private void MenuHandler(object sender, EventArgs e)
